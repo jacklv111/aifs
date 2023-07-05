@@ -1,0 +1,1505 @@
+openapi: 3.0.3
+info:
+  title: Aifs api
+  description: aifs api
+  version: 1.0.0
+servers:
+  - url: 'https://www.example.com/api/open/v1'
+tags:
+  - name: annotation template
+    description: Operations about annotation templates
+  - name: data view
+    description: Operations about data views
+paths:
+  /annotation-template-types:
+    get:
+      tags:
+        - annotation template type
+      summary: Get annotation template type list
+      description: Get annotation template type list
+      operationId: getAnnoTemplateTypeList
+      parameters:
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnotationTemplateTypeList'
+
+  /annotation-templates:
+    get:
+      tags:
+        - annotation template
+      summary: Get annotation template list
+      description: Get annotation template list
+      operationId: getAnnoTemplateList
+      parameters:
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+        - name: annotationTemplateIdList
+          in: query
+          description: annotation template with id in annotation template id list will be got
+          style: form
+          explode: false
+          schema:
+            type: string
+          example: "aaa,bbb,ccc"
+              
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/AnnotationTemplateListItem'
+  
+    post:
+      tags:
+        - annotation template
+      summary: Create an annotation template
+      description: Create an annotation template
+      operationId: createAnnotationTemplate
+      requestBody:
+        description: Create an new annotation template
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAnnotationTemplateRequest'
+        required: true
+        
+      responses:
+        '201':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateAnnoTemplateSuccessResp'
+                  
+        '400':
+          description: Invalid input parameters
+          
+    put:
+      tags:
+        - annotation template
+      summary: Update an annotation template
+      description: Update an annotation template
+      operationId: updateAnnotationTemplate
+      requestBody:
+        description: Update an existed annotation template
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAnnotationTemplateRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+        '404':
+          description: Annotation template not found
+      
+  /annotation-templates/{annotationTemplateId}:
+    delete:
+      tags:
+        - annotation template
+      summary: Delete an annotation template
+      description: Delete an annotation template
+      operationId: deleteAnnotationTemplate
+      parameters:
+        - $ref: '#/components/parameters/AnnotationTemplateId'
+      responses:
+        '200':
+          description: Successful operation
+        '404':
+          description: Annotation template not found
+  
+  /annotation-templates/{annotationTemplateId}/copy:
+    post:
+      tags:
+        - annotation template
+      summary: Copy an annotation template
+      description: Copy an annotation template
+      operationId: copyAnnotationTemplate
+      parameters:
+        - $ref: '#/components/parameters/AnnotationTemplateId'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  annotationTemplateId:
+                    type: string
+                    format: uuid
+                    description: annotation template id of the copied annotation template
+        '404':
+          description: Annotation template not found
+          
+  /annotation-templates/{annotationTemplateId}/details:
+    get:
+      tags:
+        - annotation template
+      summary: Get annotation template details
+      description: Get annotation template details
+      operationId: getAnnoTemplateDetails
+      parameters:
+        - $ref: '#/components/parameters/AnnotationTemplateId'
+              
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnotationTemplateDetails'
+        '404':
+          description: annotation template not found
+
+  /data-views:
+    get:
+      tags:
+        - data view
+      summary: Get data view list
+      description: Get data view list
+      operationId: getDataViewList
+      parameters:
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+        - name: dataViewIdList
+          in: query
+          description: data view with id in data view id list will be got
+          style: form
+          explode: false
+          schema:
+            type: string
+            example: "aaa,bbb,ccc"
+        - name: dataViewName
+          in: query
+          description: data view name filter, support fuzzy query
+          schema:
+            type: string
+            example: "hand"
+      
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/DataViewListItem'
+    post:
+      tags:
+        - data view
+      summary: Create a data view
+      description: Create a data view
+      operationId: createDataView
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDataViewRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateDataViewSuccessResp'
+                  
+        '400':
+          description: Invalid input parameters
+  
+  /data-views/merge:
+    post:
+      tags:
+        - data view
+      summary: Merge data views
+      description: Merge data views, generate a new data view to put the result
+      operationId: mergeDataViews
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MergeDataViewsRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MergeDataViewsSuccessResp'
+                  
+        '400':
+          description: Invalid input parameters
+
+  /data-views/move:
+    post:
+      tags:
+        - data view
+      summary: Move data items between data views
+      description: Move data items from data view A to data view B
+      operationId: moveDataViewItems
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MoveDataViewItemsRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Invalid input parameters
+
+  /data-views/{dataViewId}:      
+    delete:
+      tags:
+        - data view
+      summary: Delete a data view
+      description: Delete a data view
+      operationId: deleteDataView
+      parameters:
+        - $ref: '#/components/parameters/DataViewId'
+      responses:
+        '200':
+          description: Successful operation
+        '404':
+          description: Data view not found
+  
+  /data-views/{dataViewId}/merge:
+    post:
+      tags:
+        - data view
+      summary: Merge data views
+      description: Merge other data views to current data view
+      operationId: mergeDataViewsToCrurrent
+      parameters:
+        - $ref: '#/components/parameters/DataViewId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MergeDataViewsRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Invalid input parameters
+  
+  /data-views/{dataViewId}/hard-delete:      
+    delete:
+      tags:
+        - data view
+      summary: Hard delete a data view
+      description: Hard delete a data view
+      operationId: hardDeleteDataView
+      parameters:
+        - $ref: '#/components/parameters/DataViewId'
+      responses:
+        '200':
+          description: Successful operation
+        '404':
+          description: Data view not found
+
+  /data-views/{dataViewId}/details:
+    get:
+      tags:
+        - data view
+      summary: Get data view details
+      description: Get data view details
+      operationId: getDataViewDetails
+      parameters:
+        - $ref: '#/components/parameters/DataViewId'
+              
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataViewDetails'
+        '404':
+          description: data view not found
+  
+  /data-views/{dataViewId}/statistics:
+    get:
+      tags:
+        - data view
+      summary: Get data view statistics
+      description: Get data view statistics
+      operationId: getDataViewStatistics
+      parameters:
+        - $ref: '#/components/parameters/DataViewId'
+              
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataViewStatistics'
+        '404':
+          description: data view not found
+
+  /data-views/{dataViewId}/raw-data:   
+    get:
+      tags:
+        - data view
+      summary: Get data view raw data
+      description: Get data view raw data
+      operationId: getRawDataInDataView
+      parameters:
+        - $ref: '#/components/parameters/DataViewId'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/RawDataIdList'
+        - name: excludedAnnotationViewId
+          in: query
+          description: excluded annotation view with id. Return the raw data items which have no annotation in the annotation view.
+          schema:
+            type: string
+            format: uuid
+        - name: includedAnnotationViewId
+          in: query
+          description: included annotation view with id. Return the raw data items which have annotation in the annotation view.
+          schema:
+            type: string
+            format: uuid
+
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rawDataType:
+                    $ref: '#/components/schemas/RawDataType'
+                  rawDataList:
+                    type: array
+                    items: 
+                      $ref: '#/components/schemas/RawDataListItem'
+
+        '404':
+          description: data view not found
+    post:
+      tags:
+        - data view
+      summary: Upload raw data to data view
+      description: Upload raw data to data view
+      operationId: uploadRawDataToDataView
+      parameters:
+        - $ref: '#/components/parameters/DataViewId'
+        
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+          application/json:
+            schema:
+              type: object
+              properties:
+                resourcePath:
+                  $ref: '#/components/schemas/FoldUriType'
+              required:
+                - resourcePath
+      responses:
+        '200':
+          description: Successful operation
+    
+  /data-views/{dataViewId}/raw-data-hash-list:   
+    get:
+      tags:
+        - data view
+      summary: Get data view raw data hash list
+      description: Get data view raw data hash list.
+      operationId: getRawDataHashListInDataView
+      parameters:
+        - $ref: '#/components/parameters/DataViewId'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+              
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RawDataHashList'
+        '404':
+          description: data view not found
+          
+  /data-views/{dataViewId}/annotations:   
+    get:
+      tags:
+        - data view
+      summary: Get data view annotations
+      description: Get data view annotations
+      operationId: getAnnotationsInDataView
+      parameters:
+        - $ref: '#/components/parameters/DataViewId'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/RawDataIdList'
+        - $ref: '#/components/parameters/LabelId'
+              
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  annotationTemplateId:
+                    type: string
+                    format: uuid
+                  annotationTemplateType:
+                    type: string
+                  annotationList:
+                    type: array
+                    items: 
+                      $ref: '#/components/schemas/AnnotationListItem'
+        '404':
+          description: annotation template not found
+          
+    post:
+      tags:
+        - data view
+      summary: Upload annotations to data view
+      description: Upload annotations to data view
+      operationId: uploadAnnotationToDataView
+      parameters:
+        - $ref: '#/components/parameters/DataViewId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                fileMeta: 
+                  type: string
+                  format: binary
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+          application/json:
+            schema:
+              type: object
+              properties:
+                resourcePath:
+                  $ref: '#/components/schemas/FoldUriType'
+                annotationTemplateId:
+                  type: string
+                  format: uuid
+                format:
+                  $ref: '#/components/schemas/UploadAnnotationFormat'
+                  
+      responses:
+        '200':
+          description: Successful operation
+        '404':
+          description: data view not found
+  
+  /data-views/{dataViewId}/model:
+    post:
+      tags:
+        - data view
+      summary: Upload model data to data view
+      description: Upload model data to data view
+      operationId: uploadModelDataToDataView
+      parameters:
+        - $ref: '#/components/parameters/DataViewId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                commitId:
+                  type: string
+                progress:
+                  type: string
+                modelJit:
+                  type: string
+                  format: binary
+                onnx:
+                  type: string
+                  format: binary
+                dynamicOnnx:
+                  type: string
+                  format: binary
+                configPy:
+                  type: string
+                  format: binary
+                bestPth:
+                  type: string
+                  format: binary
+                lastPth:
+                  type: string
+                  format: binary
+                outputTemplate:
+                  type: string
+                  format: binary
+                logs:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        '200':
+          description: Successful operation
+        '404':
+          description: data view not found
+
+  /data-views/{dataViewId}/artifact:
+    post:
+      tags:
+        - data view
+      summary: Upload file to data view
+      description: Upload file to data view
+      operationId: uploadFileToDataView
+      parameters:
+        - $ref: '#/components/parameters/DataViewId'
+        - $ref: '#/components/parameters/FileName'
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Successful operation
+        '404':
+          description: data view not found
+    
+  /data-views/{dataViewId}/dataset-zip:
+    post:
+      tags:
+        - data view
+      summary: Upload dataset zip
+      description: Upload dataset zip
+      operationId: UploadDatasetZipToDataView
+      parameters:
+        - $ref: '#/components/parameters/DataViewId'
+        - $ref: '#/components/parameters/FileName'
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Successful operation
+        '404':
+          description: data view not found
+
+    put:
+      tags:
+        - data view
+      summary: Update a dataset-zip view meta
+      description: Update a dataset-zip view meta
+      operationId: UpdateDatasetZipView
+      parameters:
+        - $ref: '#/components/parameters/DataViewId'
+      requestBody:
+        description: Update an existed dataset-zip view's meta
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDatasetZipRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+        '404':
+          description: data view not found
+
+  /data-views/{dataViewId}/raw-data-divide:
+    post:
+      tags:
+        - data view
+      summary: Divide data view
+      description: Divide data view
+      operationId: divideDataView
+      parameters:
+        - $ref: '#/components/parameters/DataViewId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DivideRawDataDataViewRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DivideRawDataDataViewResponse'
+        '404':
+          description: data view not found
+
+  /data-views/{dataViewId}/annotation-filter:
+    post:
+      tags:
+        - data view
+      summary: Filter annotations in a data view
+      description: Filter annotations in a data view
+      operationId: filterAnnotationsInDataView
+      parameters:
+        - $ref: '#/components/parameters/DataViewId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FilterAnnotationsInDataViewRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilterAnnotationsInDataViewResponse'
+        '404':
+          description: data view not found
+
+  /data-views/{dataViewId}/data-items:
+    delete:
+      tags:
+        - data view
+      summary: Delete data item in a data view
+      description: Delete data item in a data view
+      operationId: deleteDataItemInDataView
+      parameters:
+        - $ref: '#/components/parameters/DataViewId'
+        - name: dataViewItemIdList
+          in: query
+          required: true
+          description: ids of raw data which are expected to be deleted
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+          explode: false
+          style: form
+      responses:
+        '200':
+          description: Successful operation
+        '404':
+          description: data item not found
+
+  /data-views/{dataViewId}/raw-data-locations:
+    get:
+      tags:
+        - data view
+      summary: Get all raw data locations in a data view
+      description: Get all raw data locations in a data view
+      operationId: GetAllRawDataLocationsInDataView
+      parameters:
+        - $ref: '#/components/parameters/DataViewId'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RawDataViewLocations'
+        '404':
+          description: data view not found
+  
+  /data-views/{dataViewId}/model-data-locations:
+    get:
+      tags:
+        - data view
+      summary: Get all model data locations in a data view
+      description: Get all model data locations in a data view
+      operationId: GetModelDataLocationsInDataView
+      parameters:
+        - $ref: '#/components/parameters/DataViewId'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelDataViewLocations'
+        '404':
+          description: data view not foundF
+    
+  /data-views/{dataViewId}/annotation-locations:
+    get:
+      tags:
+        - data view
+      summary: Get all annotation locations in a data view
+      description: Get all annotation locations in a data view
+      operationId: GetAllAnnotationLocationsInDataView
+      parameters:
+        - $ref: '#/components/parameters/DataViewId'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnotationViewLocations'
+        '404':
+          description: data view not found
+  
+  /data-views/{dataViewId}/dataset-zip-location:
+    get:
+      tags:
+        - data view
+      summary: Get dataset zip's location in a data view
+      description: Get dataset zip's location in a data view
+      operationId: GetDatasetZipLocationInDataView
+      parameters:
+        - $ref: '#/components/parameters/DataViewId'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetZipLocation'
+        '404':
+          description: data view not found
+  
+  /data-views/{dataViewId}/artifact-locations:
+    get:
+      tags:
+        - data view
+      summary: Get files' locations in artifact data view
+      description: Get files' locations in artifact data view
+      operationId: GetArtifactLocationsInDataView
+      parameters:
+        - $ref: '#/components/parameters/DataViewId'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtifactLocations'
+        '404':
+          description: data view not found
+  
+  /data-views/{dataViewId}/annotation-data:
+    get:
+      tags:
+        - data view
+      summary: Get all annotation data in a data view
+      description: Get all annotation data in a data view
+      operationId: GetAllAnnotationDataInDataView
+      parameters:
+        - $ref: '#/components/parameters/DataViewId'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnotationViewData'
+        '404':
+          description: data view not found
+
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - code
+        - message
+    
+    MergeDataViewsRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: name of the merged data view
+        description:
+          type: string
+          description: description of the merged data view
+        dataViewIdList:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    MergeDataViewsSuccessResp:
+      type: object
+      properties:
+        dataViewId:
+          type: string
+          format: uuid
+
+    AnnotationTemplateTypeList:
+      type: array
+      items:
+        type: string
+      example: ['bounding-box', 'polygon']
+      
+    AnnotationTemplateListItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: the id of the annotation template
+        name:
+          type: string
+          description: name of the annotation template
+        createAt:
+          $ref: '#/components/schemas/TimeFmtInMs'
+        type:
+          type: string
+          description: the type of the annotation template
+        labelCount:
+          type: integer
+          format: int32
+          description: the number of labels annotation template has
+    
+    Label:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: the id of the label
+        name:
+          type: string
+          description: the name of the label
+        superCategoryName:
+          type: string
+          description: the super category name
+        color:
+          type: integer
+          format: int32
+        keyPointDef:
+          $ref: '#/components/schemas/KeyPointDef'
+        keyPointSkeleton:
+          $ref: '#/components/schemas/KeyPointSkeleton'
+        coverImageUrl:
+          type: string
+      required:
+        - name
+        - color
+  
+    WordList:
+      type: array
+      items:
+        type: string
+        description: the words in word list should not be equal
+    
+    AnnotationTemplateDetails:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: the id of the annotation template
+        name:
+          type: string
+          description: name of the annotation template
+        createAt:
+          $ref: '#/components/schemas/TimeFmtInMs'
+        updateAt:
+          $ref: '#/components/schemas/TimeFmtInMs'
+        type:
+          type: string
+          description: the type of the annotation template
+        labels:
+          type: array
+          items: 
+            $ref: '#/components/schemas/Label'
+        wordList:
+          $ref: '#/components/schemas/WordList'
+    
+    FilterAnnotationsInDataViewRequest:
+      type: object
+      properties:
+        rawDataViewId:
+          type: string
+          format: uuid
+          description: the id of the raw data view
+    
+    FilterAnnotationsInDataViewResponse:
+      type: object
+      properties:
+        annotationViewId:
+          type: string
+          format: uuid
+          description: the id of the filtered annotation view.
+
+    CreateAnnotationTemplateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: name of the annotation template
+        type:
+          type: string
+          description: the type of the annotation template
+        description:
+          type: string
+          description: the description of the annotation template
+        labels:
+          type: array
+          items: 
+            $ref: '#/components/schemas/Label'
+        wordList:
+          $ref: '#/components/schemas/WordList'
+      required:
+        - name
+        - type
+  
+    UpdateDatasetZipRequest:
+      type: object
+      properties:
+        progress:
+          type: float
+        status:
+          type: string
+        trainRawDataViewId:
+          type: string
+          format: uuid
+        trainAnnotationViewId:
+          type: string
+          format: uuid
+        valRawDataViewId:
+          type: string
+          format: uuid
+        valAnnotationViewId:
+          type: string
+          format: uuid
+        annotationTemplateId:
+          type: string
+          format: uuid
+        rawDataViewId:
+          type: string
+          format: uuid
+        annotationViewId:
+          type: string
+          format: uuid
+    
+    UpdateAnnotationTemplateRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: the id of the annotation template
+        name:
+          type: string
+          description: the name of the annotation template
+        type:
+          type: string
+          description: the type of the annotation template
+        description:
+          type: string
+          description: the description of the annotation template
+        labels:
+          type: array
+          items: 
+            $ref: '#/components/schemas/Label'
+        wordList:
+          $ref: '#/components/schemas/WordList'
+      required:
+        - name
+        - type
+    
+    KeyPointDef:
+      type: array
+      items:
+        type: string
+      description: the defination of the key points
+
+    KeyPointSkeleton:
+      type: array
+      items:
+        type: array
+        items:
+          type: integer
+          format: int32
+          description: the size should be 2. Each item indicates keypoints with index item[0] and index item[1] have a connect
+
+    RawDataHashList:
+      type: array
+      items:
+        type: object
+        properties:
+          rawDataId:
+            type: string
+            format: uuid
+          sha256:
+            type: string
+            
+    DataViewListItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: the id of the data view
+        name:
+          type: string
+          description: the name of the data view
+        viewType:
+          $ref: '#/components/schemas/DataViewType'
+        rawDataType:
+          $ref: '#/components/schemas/RawDataType'
+        annotationTemplateId:
+          type: string
+          format: uuid
+          description: if data view is an annotation view, it has annotation template id
+        annotationTemplateType:
+          type: string
+          description: if data view is an annotation view, it has annotation template type
+        createAt:
+          $ref: '#/components/schemas/TimeFmtInMs'
+    
+    MoveDataViewItemsRequest:
+      type: object
+      properties:
+        srcDataViewId:
+          type: string
+          format: uuid
+          description: the id of the source data view
+        dstDataViewId:
+          type: string
+          format: uuid
+          description: the id of the destination data view
+
+    DataViewDetails:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: the id of the data view
+        name:
+          type: string
+          description: the name of the data view
+        viewType:
+          $ref: '#/components/schemas/DataViewType'
+        description:
+          type: string
+          description: the description of the data view
+        rawDataType:
+          $ref: '#/components/schemas/RawDataType'
+        annotationTemplateType:
+          type: string
+          description: if data view is an annotation view, it has annotation template type
+        createAt:
+          $ref: '#/components/schemas/TimeFmtInMs'
+        progress:
+          type: float
+        commitId:
+          type: string
+        status:
+          type: string
+        zipFormat:
+          $ref: '#/components/schemas/ZipFormat'
+        trainRawDataViewId:
+          type: string
+          format: uuid
+        trainAnnotationViewId:
+          type: string
+          format: uuid
+        valRawDataViewId:
+          type: string
+          format: uuid
+        valAnnotationViewId:
+          type: string
+          format: uuid
+        annotationTemplateId:
+          type: string
+          format: uuid
+        rawDataViewId:
+          type: string
+          format: uuid
+        annotationViewId:
+          type: string
+          format: uuid    
+    
+    DataViewStatistics:
+      type: object
+      properties:
+        itemCount:
+          type: integer
+          format: int32
+        labelCount:
+          type: integer
+          format: int32
+          description: the number of labels in the annotation data view.
+        labelDistribution:
+          type: array
+          items:
+            $ref: '#/components/schemas/LabelDistribution'
+          description: the distribution of labels in the annotation data view.
+        totalDataSize:
+          type: integer
+          format: int64
+          description: the total size of the data in the data view in bytes.
+  
+    LabelDistribution:
+      type: object
+      properties:
+        labelId:
+          type: string
+          description: the label id
+        count:
+          type: integer
+          format: int32
+          description: the number of the label in the data view.
+        ratio:
+          type: float
+          description: the ratio of the label in the data view.
+
+    RawDataViewLocations:
+      type: object
+      properties:
+        dataViewId:
+          type: string
+          format: uuid
+        viewType:
+          $ref: '#/components/schemas/DataViewType'
+        rawDataType:
+          $ref: '#/components/schemas/RawDataType'
+        dataItems:
+          $ref: '#/components/schemas/S3Storage'
+
+    DatasetZipLocation:
+      type: object
+      properties:
+        dataViewId:
+          type: string
+          format: uuid
+        viewType:
+          $ref: '#/components/schemas/DataViewType'
+        dataItems:
+          $ref: '#/components/schemas/S3Storage'
+
+    ArtifactLocations:
+      type: object
+      properties:
+        dataViewId:
+          type: string
+          format: uuid
+        viewType:
+          $ref: '#/components/schemas/DataViewType'
+        dataItems:
+          $ref: '#/components/schemas/S3Storage'
+
+    ModelDataViewLocations:
+      type: object
+      properties:
+        dataViewId:
+          type: string
+          format: uuid
+        viewType:
+          $ref: '#/components/schemas/DataViewType'
+        dataItems:
+          $ref: '#/components/schemas/S3Storage'
+
+    AnnotationViewLocations:
+      type: object
+      properties:
+        dataViewId:
+          type: string
+          format: uuid
+        annotationTemplateId:
+          type: string
+          format: uuid
+        viewType:
+          $ref: '#/components/schemas/DataViewType'
+        dataItems:
+          $ref: '#/components/schemas/S3Storage'
+    
+    AnnotationViewData:
+      type: object
+      properties:
+        dataViewId:
+          type: string
+          format: uuid
+        annotationTemplateId:
+          type: string
+          format: uuid
+        viewType:
+          $ref: '#/components/schemas/DataViewType'
+        dataItems:
+          $ref: '#/components/schemas/AnnotationData'
+    
+    S3Storage:
+      type: array
+      items:
+        type: object
+        properties:
+          dataItemId: 
+            type: string
+            format: uuid
+          dataName:
+            type: string
+          objectKey:
+            type: string
+            description: the object key of the data in s3 storage
+    
+    AnnotationData:
+      type: array
+      items:
+        type: object
+        properties:
+          dataItemId: 
+            type: string
+            format: uuid
+          labels:
+            type: array
+            items:
+              type: string
+              format: uuid
+              description: the label id of the raw data under an annotation template
+          textData:
+            type: string
+            description: text format annotation data
+
+    DivideRawDataDataViewRequest:
+      type: array
+      items:
+        type: object
+        properties:
+          name:
+            type: string
+          description:
+            type: string
+          ratio:
+            type: integer
+
+      description: the sum of the ratios should be 100
+    
+    DivideRawDataDataViewResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          name:
+            type: string
+          dataViewId:
+            type: string
+            format: uuid
+          itemCount:
+            type: integer
+            format: int32
+    
+    CreateDataViewRequest:
+      type: object
+      properties:
+        dataViewName:
+          type: string
+          description: the name of the data view
+        description:
+          type: string
+          description: the description of the data view
+        viewType: 
+          $ref: '#/components/schemas/DataViewType'
+        rawDataType:
+          $ref: '#/components/schemas/RawDataType'
+        zipFormat:
+          $ref: '#/components/schemas/ZipFormat'
+        relatedDataViewId:
+          type: string
+          format: uuid
+          description: If it is an annotation type data view, it must have a related raw-data data view
+        annotationTemplateId:
+          type: string
+          format: uuid
+          description: If it is an annotation type data view, it must have a related annotation template id. If it is a dataset-zip data view, it can have an annotation template id to indicate the annotation template of the annotation data.
+        rawDataViewId:
+          type: string
+          format: uuid
+          description: If it is a dataset-zip type data view, it can have a raw data view id to upload raw data to the data view
+        annotationViewId:
+          type: string
+          format: uuid
+          description: If it is a dataset-zip type data view, it can have a annotation view id to upload annotation data to the data view
+    
+    RawDataListItem:
+      type: object
+      properties:
+        rawDataId:
+          type: string
+          format: uuid
+          description: the id of the raw data
+        url:
+          type: string
+    
+    AnnotationListItem:
+      description: the result of get annotation list
+      type: object
+      properties:
+        rawDataId:
+          type: string
+          format: uuid
+          description: the id of the raw data
+        dataItemId:
+          type: string
+          format: uuid
+          description: the id of the annotation data item
+        url:
+          type: string
+        labels:
+          type: array
+          items:
+            type: string
+            format: uuid
+            description: the label id of the raw data under an annotation template
+    
+    ImageData:
+      type: object
+      properties:
+        format:
+          type: string
+          enum: [png, jpg, gif, raw, bmp]
+        data:
+          type: string
+          format: binary
+    
+    DataViewType:
+      type: string
+      enum: [raw-data, annotation, model, dataset-zip, artifact]
+
+    UploadAnnotationFormat:
+      type: string
+      description: the format of the data
+      enum: ["all-annotation-single-file-local", "per-annotation-per-file-local"]
+
+    RawDataType:
+      type: string
+      enum: [image, text, rgbd, points-3d]
+      description: the type of raw data
+      
+    TimeFmtInMs:
+      type: integer
+      format: int64
+      example: 1672320075000
+      description: Unix timestamp in ms
+    
+    ZipFormat:
+      type: string
+      enum: [image-classification, rgbd-bounding-box-2d-and-3d, image-segmentation-masks, ocr, coco, raw-data-images, sam, points-3d-zip]
+      description: the structure of the files in zip file
+      
+    FoldUriType:
+      type: string
+      format: uri
+      description: the folder path of the resource
+    
+    CreateAnnoTemplateSuccessResp:
+      type: object
+      properties:
+        annotationTemplateId:
+          type: string
+          format: uuid
+    
+    CreateDataViewSuccessResp:
+      type: object
+      properties:
+        dataViewId:
+          type: string
+          format: uuid
+      
+  parameters:
+    Offset:
+      in: query
+      name: offset
+      schema:
+        type: integer
+        format: int32
+        default: 0
+      description: The number of items to skip before starting to collect the result set
+    Limit:
+      in: query
+      name: limit
+      schema:
+        type: integer
+        format: int32
+        default: 10
+        minimum: 1
+        maximum: 50
+      description: The numbers of items to return
+
+    RawDataIdList:
+      in: query
+      name: rawDataIdList
+      description: ids of raw data
+      schema:
+        type: array
+        items:
+          type: string
+          format: uuid
+      explode: false
+      style: form
+    
+    AnnotationTemplateId:
+      in: path
+      name: annotationTemplateId
+      schema:
+        type: string
+        format: uuid
+      description: The id of an annotation template
+      required: true
+    DataViewId:
+      in: path
+      name: dataViewId
+      schema:
+        type: string
+        format: uuid
+      description: The id of a data view
+      required: true
+    FileName:
+      name: X-File-Name
+      in: header
+      required: true
+      schema:
+        type: string
+    LabelId:
+      name: labelId
+      in: query
+      required: false
+      schema:
+        type: string
+        format: uuid
