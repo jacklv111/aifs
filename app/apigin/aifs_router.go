@@ -11,10 +11,8 @@ package apigin
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jacklv111/aifs/app/apigin/view-object/openapi"
 )
 
 // Route is the information for every URI.
@@ -36,12 +34,8 @@ type Routes []Route
 func NewRouter() *gin.Engine {
 	router := gin.Default()
 	router.MaxMultipartMemory = 32 << 20 // 32 MiB
-	router.Use(gin.CustomRecovery(func(ctx *gin.Context, err interface{}) {
-		if strings.Contains(err.(string), "invalid UUID") {
-			// TODO: 选择合适错误码和 msg
-			ctx.JSON(http.StatusBadRequest, openapi.Error{Code: "1", Message: err.(string)})
-		}
-	}))
+	router.Use(ErrorHandler())
+	router.Use(PanicHandler())
 	for _, route := range routes {
 		switch route.Method {
 		case http.MethodGet:

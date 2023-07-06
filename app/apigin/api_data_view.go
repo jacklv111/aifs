@@ -10,142 +10,524 @@
 package apigin
 
 import (
+	"math"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/jacklv111/aifs/app/apigin/view-object/openapi"
+	dataview "github.com/jacklv111/aifs/pkg/data-view"
+	dv "github.com/jacklv111/aifs/pkg/data-view"
+	"github.com/jacklv111/common-sdk/errors"
+	"github.com/jacklv111/common-sdk/log"
+	"github.com/jacklv111/common-sdk/utils"
 )
 
 // CreateDataView - Create a data view
 func CreateDataView(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
+	var req openapi.CreateDataViewRequest
+	err := c.BindJSON(&req)
+	if err != nil {
+		log.Errorf("Error occurred when binding json %s", err)
+		c.Error(errors.NewAppErr(INVALID_PARAMS, err, err.Error()))
+		return
+	}
+
+	result, err := manager.DataViewMgr.Create(req)
+
+	if err != nil {
+		log.Errorf("Error occurred when creating data view %s", err)
+		c.Error(errors.NewAppErr(UNDEFINED_ERROR, err, err.Error()))
+		return
+	}
+	c.JSON(http.StatusCreated, result)
 }
 
 // DeleteDataItemInDataView - Delete data item in a data view
 func DeleteDataItemInDataView(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
+	dataViewItemIdListStr, ok := c.GetQuery(DATA_VIEW_ITEM_ID_LIST)
+	stList := utils.ParseListStr(dataViewItemIdListStr, ok, ",")
+	if stList == nil {
+		c.Status(http.StatusOK)
+		return
+	}
+	dataViewItemIdList := make([]uuid.UUID, 0)
+	for _, st := range stList {
+		dataViewItemIdList = append(dataViewItemIdList, uuid.MustParse(st))
+	}
+	dataViewId := uuid.MustParse(c.Param(DATA_VIEW_ID))
+
+	err := manager.DataViewMgr.DeleteDataViewItem(dataViewId, dataViewItemIdList)
+	if err != nil {
+		if err == dv.ErrDataViewNotFound {
+			c.Error(errors.NewAppErr(NOT_FOUND, err, dataViewId))
+			return
+		}
+		log.Errorf("Error occurred when parsing limit type %s", err)
+		c.Error(errors.NewAppErr(UNDEFINED_ERROR, err, err.Error()))
+		return
+	}
+
+	c.Status(http.StatusOK)
 }
 
 // DeleteDataView - Delete a data view
 func DeleteDataView(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
+	dataViewId := uuid.MustParse(c.Param(DATA_VIEW_ID))
+	err := manager.DataViewMgr.Delete(dataViewId)
+	if err != nil {
+		if err == dv.ErrDataViewNotFound {
+			c.Error(errors.NewAppErr(NOT_FOUND, err, dataViewId))
+			return
+		}
+		log.Errorf("Error occurred when manager deleting by id, error %v", err)
+		c.Error(errors.NewAppErr(UNDEFINED_ERROR, err, err.Error()))
+		return
+	}
+	c.Status(http.StatusOK)
 }
 
 // DivideDataView - Divide data view
 func DivideDataView(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
+	dataViewId := uuid.MustParse(c.Param(DATA_VIEW_ID))
+	var req []openapi.DivideRawDataDataViewRequestInner
+	err := c.BindJSON(&req)
+	if err != nil {
+		log.Errorf("Error occurred when binding json %s", err)
+		// TODO: 选择合适错误码和 msg
+		c.JSON(http.StatusBadRequest, openapi.Error{Code: "1", Message: err.Error()})
+		return
+	}
+	resp, err := manager.DataViewMgr.DivideDataView(dataViewId, req)
+	if err != nil {
+		if err == dv.ErrDataViewNotFound {
+			c.Error(errors.NewAppErr(NOT_FOUND, err, dataViewId.String()))
+			return
+		}
+		log.Errorf("Error occurred when divide data view %s", err)
+		c.Error(errors.NewAppErr(UNDEFINED_ERROR, err, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, resp)
 }
 
 // FilterAnnotationsInDataView - Filter annotations in a data view
 func FilterAnnotationsInDataView(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
+	dataViewId := uuid.MustParse(c.Param(DATA_VIEW_ID))
+	var req openapi.FilterAnnotationsInDataViewRequest
+	err := c.BindJSON(&req)
+	if err != nil {
+		log.Errorf("Error occurred when binding json %s", err)
+		c.Error(errors.NewAppErr(INVALID_PARAMS, err, err.Error()))
+		return
+	}
+	rawDataViewId := uuid.MustParse(req.RawDataViewId)
+	resp, err := manager.DataViewMgr.FilterAnnotationsInDataView(dataViewId, rawDataViewId)
+	if err != nil {
+		log.Errorf("Error occurred when filter annotations in data view %s", err)
+		c.Error(errors.NewAppErr(UNDEFINED_ERROR, err, err.Error()))
+		return
+	}
+	c.JSON(http.StatusOK, resp)
 }
 
 // GetAllAnnotationDataInDataView - Get all annotation data in a data view
 func GetAllAnnotationDataInDataView(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
+	dataViewId := uuid.MustParse(c.Param(DATA_VIEW_ID))
+
+	res, err := manager.DataViewMgr.GetAllAnnotationData(dataViewId)
+
+	if err != nil {
+		if err == dataview.ErrDataViewNotFound {
+			c.Error(errors.NewAppErr(NOT_FOUND, err, dataViewId))
+			return
+		}
+		log.Errorf("Error occurred when getting all annotations %s", err)
+		c.Error(errors.NewAppErr(UNDEFINED_ERROR, err, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
 }
 
 // GetAllAnnotationLocationsInDataView - Get all annotation locations in a data view
 func GetAllAnnotationLocationsInDataView(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
+	dataViewId := uuid.MustParse(c.Param(DATA_VIEW_ID))
+
+	offset, err := utils.ParseInt(c.Query(OFFSET_STR), 0, math.MaxInt, 0)
+	if err != nil {
+		log.Errorf("Error occurred when parsing offset type %s", err)
+		c.Error(errors.NewAppErr(INVALID_PARAMS, err, err.Error()))
+		return
+	}
+	limit, err := utils.ParseInt(c.Query(LIMIT_STR), LIMIT_MIN, 5000, 10)
+	if err != nil {
+		log.Errorf("Error occurred when parsing limit type %s", err)
+		c.Error(errors.NewAppErr(INVALID_PARAMS, err, err.Error()))
+		return
+	}
+
+	res, err := manager.DataViewMgr.GetRawDataHashList(dataViewId, offset, limit)
+
+	if err != nil {
+		if err == dataview.ErrDataViewNotFound {
+			c.Error(errors.NewAppErr(NOT_FOUND, err, dataViewId.String()))
+			return
+		}
+		log.Errorf("Error occurred when getting all annotation locations %s", err)
+		c.Error(errors.NewAppErr(UNDEFINED_ERROR, err, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
 }
 
 // GetAllRawDataLocationsInDataView - Get all raw data locations in a data view
 func GetAllRawDataLocationsInDataView(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
+	dataViewId := uuid.MustParse(c.Param(DATA_VIEW_ID))
+
+	res, err := manager.DataViewMgr.GetAllRawDataLocations(dataViewId)
+
+	if err != nil {
+		if err == dataview.ErrDataViewNotFound {
+			c.Error(errors.NewAppErr(NOT_FOUND, err, dataViewId.String()))
+			return
+		}
+		log.Errorf("Error occurred when getting all raw data locations %s", err)
+		c.Error(errors.NewAppErr(UNDEFINED_ERROR, err, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
 }
 
 // GetAnnotationsInDataView - Get data view annotations
 func GetAnnotationsInDataView(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
+	dataViewId := uuid.MustParse(c.Param(DATA_VIEW_ID))
+
+	offset, err := utils.ParseInt(c.Query(OFFSET_STR), 0, math.MaxInt, 0)
+	if err != nil {
+		log.Errorf("Error occurred when parsing offset type %s", err)
+		c.Error(errors.NewAppErr(INVALID_PARAMS, err, err.Error()))
+		return
+	}
+	limit, err := utils.ParseInt(c.Query(LIMIT_STR), LIMIT_MIN, LIMIT_MAX, 10)
+	if err != nil {
+		log.Errorf("Error occurred when parsing limit type %s", err)
+		c.Error(errors.NewAppErr(INVALID_PARAMS, err, err.Error()))
+		return
+	}
+	rawDataIdListStr, ok := c.GetQuery(RAW_DATA_ID_LIST)
+	rawDataIdList := utils.ParseListStr(rawDataIdListStr, ok, ",")
+	labelId := c.Query(LABEL_ID)
+	result, err := manager.DataViewMgr.GetAnnotationList(dataViewId, offset, limit, rawDataIdList, labelId)
+
+	if err != nil {
+		if err == dataview.ErrDataViewNotFound {
+			c.Error(errors.NewAppErr(NOT_FOUND, err, dataViewId.String()))
+			return
+		}
+		log.Errorf("Error occurred when getting data view list %s", err)
+		c.Error(errors.NewAppErr(UNDEFINED_ERROR, err, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
 }
 
 // GetArtifactLocationsInDataView - Get files' locations in artifact data view
 func GetArtifactLocationsInDataView(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
+	dataViewId := uuid.MustParse(c.Param(DATA_VIEW_ID))
+
+	res, err := manager.DataViewMgr.GetArtifactLocationsInDataView(dataViewId)
+
+	if err != nil {
+		if err == dataview.ErrDataViewNotFound {
+			c.Error(errors.NewAppErr(NOT_FOUND, err, dataViewId.String()))
+			return
+		}
+		log.Errorf("Error occurred when getting all artifact file locations %s", err)
+		c.Error(errors.NewAppErr(UNDEFINED_ERROR, err, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
 }
 
 // GetDataViewDetails - Get data view details
 func GetDataViewDetails(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
+	dataViewId := uuid.MustParse(c.Param(DATA_VIEW_ID))
+	details, err := manager.DataViewMgr.GetDetailsById(dataViewId)
+	if err != nil {
+		if err == dataview.ErrDataViewNotFound {
+			c.Error(errors.NewAppErr(NOT_FOUND, err, dataViewId.String()))
+			return
+		}
+		log.Errorf("Error occurred when manager getting details by id, error", err)
+		c.Error(errors.NewAppErr(UNDEFINED_ERROR, err, err.Error()))
+		return
+	}
+	c.JSON(http.StatusOK, details)
 }
 
 // GetDataViewList - Get data view list
 func GetDataViewList(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
+	offset, err := utils.ParseInt(c.Query(OFFSET_STR), 0, math.MaxInt, 0)
+	if err != nil {
+		log.Errorf("Error occurred when parsing offset type %s", err)
+		c.Error(errors.NewAppErr(INVALID_PARAMS, err, err.Error()))
+		return
+	}
+	limit, err := utils.ParseInt(c.Query(LIMIT_STR), LIMIT_MIN, LIMIT_MAX, 10)
+	if err != nil {
+		log.Errorf("Error occurred when parsing limit type %s", err)
+		c.Error(errors.NewAppErr(INVALID_PARAMS, err, err.Error()))
+		return
+	}
+
+	dataViewIdListStr, ok := c.GetQuery(DATA_VIEW_ID_LIST)
+	dataViewIdList := utils.ParseListStr(dataViewIdListStr, ok, ",")
+
+	dataViewName, _ := c.GetQuery(DATA_VIEW_NAME)
+
+	resultList, err := manager.DataViewMgr.GetList(offset, limit, dataViewIdList, dataViewName)
+
+	if err != nil {
+		log.Errorf("Error occurred when getting data view list %s", err)
+		c.Error(errors.NewAppErr(UNDEFINED_ERROR, err, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, resultList)
 }
 
 // GetDataViewStatistics - Get data view statistics
 func GetDataViewStatistics(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
+	dataViewId := uuid.MustParse(c.Param(DATA_VIEW_ID))
+	statistics, err := manager.DataViewMgr.GetStatisticsById(dataViewId)
+	if err != nil {
+		if err == dataview.ErrDataViewNotFound {
+			c.Error(errors.NewAppErr(NOT_FOUND, err, dataViewId.String()))
+			return
+		}
+		log.Errorf("Error occurred when manager getting statistics by id, error %v", err)
+		c.Error(errors.NewAppErr(UNDEFINED_ERROR, err, err.Error()))
+		return
+	}
+	c.JSON(http.StatusOK, statistics)
 }
 
 // GetDatasetZipLocationInDataView - Get dataset zip's location in a data view
 func GetDatasetZipLocationInDataView(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
+	dataViewId := uuid.MustParse(c.Param(DATA_VIEW_ID))
+
+	res, err := manager.DataViewMgr.GetDatasetZipLocationInDataView(dataViewId)
+
+	if err != nil {
+		if err == dataview.ErrDataViewNotFound {
+			c.Error(errors.NewAppErr(NOT_FOUND, err, dataViewId.String()))
+			return
+		}
+		log.Errorf("Error occurred when getting dataset zip location %s", err)
+		c.Error(errors.NewAppErr(UNDEFINED_ERROR, err, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
 }
 
 // GetModelDataLocationsInDataView - Get all model data locations in a data view
 func GetModelDataLocationsInDataView(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
+	dataViewId := uuid.MustParse(c.Param(DATA_VIEW_ID))
+
+	res, err := manager.DataViewMgr.GetAllModelDataLocations(dataViewId)
+
+	if err != nil {
+		if err == dataview.ErrDataViewNotFound {
+			c.Error(errors.NewAppErr(NOT_FOUND, err, dataViewId.String()))
+			return
+		}
+		log.Errorf("Error occurred when getting all model data locations %s", err)
+		c.Error(errors.NewAppErr(UNDEFINED_ERROR, err, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
 }
 
 // GetRawDataHashListInDataView - Get data view raw data hash list
 func GetRawDataHashListInDataView(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
+	dataViewId := uuid.MustParse(c.Param(DATA_VIEW_ID))
+
+	offset, err := utils.ParseInt(c.Query(OFFSET_STR), 0, math.MaxInt, 0)
+	if err != nil {
+		log.Errorf("Error occurred when parsing offset type %s", err)
+		c.Error(errors.NewAppErr(INVALID_PARAMS, err, err.Error()))
+		return
+	}
+	limit, err := utils.ParseInt(c.Query(LIMIT_STR), LIMIT_MIN, 5000, 10)
+	if err != nil {
+		log.Errorf("Error occurred when parsing limit type %s", err)
+		c.Error(errors.NewAppErr(INVALID_PARAMS, err, err.Error()))
+		return
+	}
+
+	res, err := manager.DataViewMgr.GetRawDataHashList(dataViewId, offset, limit)
+
+	if err != nil {
+		if err == dataview.ErrDataViewNotFound {
+			c.Error(errors.NewAppErr(NOT_FOUND, err, dataViewId.String()))
+			return
+		}
+		log.Errorf("Error occurred when getting raw data hash list in data view %s", err)
+		c.Error(errors.NewAppErr(UNDEFINED_ERROR, err, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
 }
 
 // GetRawDataInDataView - Get data view raw data
 func GetRawDataInDataView(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
+	dataViewId := uuid.MustParse(c.Param(DATA_VIEW_ID))
+
+	offset, err := utils.ParseInt(c.Query(OFFSET_STR), 0, math.MaxInt, 0)
+	if err != nil {
+		log.Errorf("Error occurred when parsing offset type %s", err)
+		c.Error(errors.NewAppErr(INVALID_PARAMS, err, err.Error()))
+		return
+	}
+	limit, err := utils.ParseInt(c.Query(LIMIT_STR), LIMIT_MIN, LIMIT_MAX, 10)
+	if err != nil {
+		log.Errorf("Error occurred when parsing limit type %s", err)
+		c.Error(errors.NewAppErr(INVALID_PARAMS, err, err.Error()))
+		return
+	}
+	rawDataIdListStr, ok := c.GetQuery(RAW_DATA_ID_LIST)
+	rawDataIdList := utils.ParseListStr(rawDataIdListStr, ok, ",")
+	excludedAnnoViewId := c.Query(EXCLUDED_ANNO_VIEW_ID)
+	includedAnnotationViewId := c.Query(INCLUDED_ANNO_VIEW_ID)
+
+	result, err := manager.DataViewMgr.GetRawDataList(dataViewId, offset, limit, rawDataIdList, excludedAnnoViewId, includedAnnotationViewId)
+
+	if err != nil {
+		if err == dataview.ErrDataViewNotFound {
+			c.Error(errors.NewAppErr(NOT_FOUND, err, dataViewId.String()))
+			return
+		}
+		log.Errorf("Error occurred when getting raw data in data view %s", err)
+		c.Error(errors.NewAppErr(UNDEFINED_ERROR, err, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
 }
 
 // HardDeleteDataView - Hard delete a data view
 func HardDeleteDataView(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
+	dataViewId := uuid.MustParse(c.Param(DATA_VIEW_ID))
+	err := manager.DataViewMgr.HardDelete(dataViewId)
+	if err != nil {
+		if err == dataview.ErrDataViewNotFound {
+			c.Error(errors.NewAppErr(NOT_FOUND, err, dataViewId.String()))
+			return
+		}
+		log.Errorf("Error occurred when manager deleting by id, error %v", err)
+		c.Error(errors.NewAppErr(UNDEFINED_ERROR, err, err.Error()))
+		return
+	}
+	c.Status(http.StatusOK)
 }
 
 // MergeDataViews - Merge data views
 func MergeDataViews(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
+	var req openapi.MergeDataViewsRequest
+
+	err := c.BindJSON(&req)
+	if err != nil {
+		log.Errorf("Error occurred when binding json %s", err)
+		c.Error(errors.NewAppErr(INVALID_PARAMS, err, err.Error()))
+		return
+	}
+	resp, err := manager.DataViewMgr.MergeDataViews(req)
+	if err != nil {
+		if err == dataview.ErrDataViewNotFound {
+			c.Status(http.StatusNotFound)
+			return
+		}
+		log.Errorf("Error occurred when merge data views %s", err)
+		c.Error(errors.NewAppErr(UNDEFINED_ERROR, err, err.Error()))
+		return
+	}
+	c.JSON(http.StatusOK, resp)
 }
 
 // MergeDataViewsToCrurrent - Merge data views
 func MergeDataViewsToCrurrent(c *gin.Context) {
+	dataViewId := uuid.MustParse(c.Param(DATA_VIEW_ID))
+	var req openapi.MergeDataViewsRequest
+
+	err := c.BindJSON(&req)
+	if err != nil {
+		log.Errorf("Error occurred when binding json %s", err)
+		c.Error(errors.NewAppErr(INVALID_PARAMS, err, err.Error()))
+		return
+	}
+	err = manager.DataViewMgr.MergeDataViewsToCurrent(dataViewId, req)
+	if err != nil {
+		if err == dataview.ErrDataViewNotFound {
+			c.Error(errors.NewAppErr(NOT_FOUND, err, dataViewId.String()))
+			return
+		}
+		log.Errorf("Error occurred when merge data views to current %s", err)
+		c.Error(errors.NewAppErr(UNDEFINED_ERROR, err, err.Error()))
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{})
 }
 
 // MoveDataViewItems - Move data items between data views
 func MoveDataViewItems(c *gin.Context) {
+	var req openapi.MoveDataViewItemsRequest
+	err := c.BindJSON(&req)
+	if err != nil {
+		log.Errorf("Error occurred when binding json %s", err)
+		c.Error(errors.NewAppErr(INVALID_PARAMS, err, err.Error()))
+		return
+	}
+	err = manager.DataViewMgr.MoveDataViewItems(req.SrcDataViewId, req.DstDataViewId)
+	if err != nil {
+		if err == dataview.ErrDataViewNotFound {
+			c.Error(errors.NewAppErr(NOT_FOUND, err, req.SrcDataViewId+" or "+req.DstDataViewId))
+			return
+		}
+		log.Errorf("Error occurred when merge data views to current %s", err)
+		c.Error(errors.NewAppErr(UNDEFINED_ERROR, err, err.Error()))
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{})
 }
 
 // UpdateDatasetZipView - Update a dataset-zip view meta
 func UpdateDatasetZipView(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
-}
-
-// UploadAnnotationToDataView - Upload annotations to data view
-func UploadAnnotationToDataView(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
-}
-
-// UploadDatasetZipToDataView - Upload dataset zip
-func UploadDatasetZipToDataView(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
-}
-
-// UploadFileToDataView - Upload file to data view
-func UploadFileToDataView(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
-}
-
-// UploadModelDataToDataView - Upload model data to data view
-func UploadModelDataToDataView(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
-}
-
-// UploadRawDataToDataView - Upload raw data to data view
-func UploadRawDataToDataView(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
+	dataViewId := uuid.MustParse(c.Param(DATA_VIEW_ID))
+	var req openapi.UpdateDatasetZipRequest
+	err := c.BindJSON(&req)
+	if err != nil {
+		log.Errorf("Error occurred when binding json %s", err)
+		c.Error(errors.NewAppErr(INVALID_PARAMS, err, err.Error()))
+		return
+	}
+	err = manager.DataViewMgr.UpdateDatasetZipView(dataViewId, req)
+	if err != nil {
+		if err == dataview.ErrDataViewNotFound {
+			c.Error(errors.NewAppErr(NOT_FOUND, err, dataViewId.String()))
+			return
+		}
+		log.Errorf("Error occurred when update dataset-zip data view %s", err)
+		c.Error(errors.NewAppErr(UNDEFINED_ERROR, err, err.Error()))
+		return
+	}
+	c.Status(http.StatusOK)
 }
