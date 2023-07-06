@@ -6,10 +6,14 @@ info:
 servers:
   - url: 'https://www.example.com/api/open/v1'
 tags:
+  - name: annotation template type
+    description: Operations about annotation template types
   - name: annotation template
     description: Operations about annotation templates
   - name: data view
     description: Operations about data views
+  - name: data view upload
+    description: Operations about data view upload
 paths:
   /annotation-template-types:
     get:
@@ -396,7 +400,7 @@ paths:
           description: data view not found
     post:
       tags:
-        - data view
+        - data view upload
       summary: Upload raw data to data view
       description: Upload raw data to data view
       operationId: uploadRawDataToDataView
@@ -485,7 +489,7 @@ paths:
           
     post:
       tags:
-        - data view
+        - data view upload
       summary: Upload annotations to data view
       description: Upload annotations to data view
       operationId: uploadAnnotationToDataView
@@ -527,7 +531,7 @@ paths:
   /data-views/{dataViewId}/model:
     post:
       tags:
-        - data view
+        - data view upload
       summary: Upload model data to data view
       description: Upload model data to data view
       operationId: uploadModelDataToDataView
@@ -579,7 +583,7 @@ paths:
   /data-views/{dataViewId}/artifact:
     post:
       tags:
-        - data view
+        - data view upload
       summary: Upload file to data view
       description: Upload file to data view
       operationId: uploadFileToDataView
@@ -602,7 +606,7 @@ paths:
   /data-views/{dataViewId}/dataset-zip:
     post:
       tags:
-        - data view
+        - data view upload
       summary: Upload dataset zip
       description: Upload dataset zip
       operationId: UploadDatasetZipToDataView
