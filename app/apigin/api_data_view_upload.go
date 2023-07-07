@@ -15,6 +15,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	manager "github.com/jacklv111/aifs/app/apigin/manager/data-view"
 	"github.com/jacklv111/aifs/app/apigin/view-object/openapi"
 	dataview "github.com/jacklv111/aifs/pkg/data-view"
 	"github.com/jacklv111/common-sdk/errors"

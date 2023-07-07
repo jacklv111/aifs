@@ -11,7 +11,7 @@ package manager
 import (
 	"github.com/jacklv111/aifs/app/apigin/view-object/openapi"
 	"github.com/jacklv111/aifs/pkg/annotation-template/do"
-	valueobject "github.com/jacklv111/aifs/pkg/annotation-template/value-object"
+	vb "github.com/jacklv111/aifs/pkg/annotation-template/value-object"
 )
 
 func assembleToAnnotationTemplateList(doList []do.ListItem) []openapi.AnnotationTemplateListItem {
@@ -28,7 +28,7 @@ func assembleToAnnotationTemplateList(doList []do.ListItem) []openapi.Annotation
 	return result
 }
 
-func assembleToAnnotationTemplateDetails(details *valueobject.AnnotationTemplateDetails) *openapi.AnnotationTemplateDetails {
+func assembleToAnnotationTemplateDetails(details *vb.AnnotationTemplateDetails) *openapi.AnnotationTemplateDetails {
 	var labels []openapi.Label
 	for _, data := range details.LabelDoList {
 		labels = append(labels, openapi.Label{
