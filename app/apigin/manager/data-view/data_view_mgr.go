@@ -180,7 +180,7 @@ func (mgr *dataViewMgrImpl) UploadAnnotationToDataView(dataViewId uuid.UUID, fil
 			return nil
 		},
 	}
-	return dataViewBo.(bo.AnnotationViewBoInterface).UploadAnnotationV2(uploadAnnotationParams)
+	return dataViewBo.(bo.AnnotationViewBoInterface).UploadAnnotation(uploadAnnotationParams)
 }
 
 func (mgr *dataViewMgrImpl) UploadRawDataToDataView(dataViewId uuid.UUID, fileMeta io.Reader, dataFileMap map[string]io.ReadSeeker) error {
@@ -192,7 +192,7 @@ func (mgr *dataViewMgrImpl) UploadRawDataToDataView(dataViewId uuid.UUID, fileMe
 		FileMeta:    fileMeta,
 		DataFileMap: dataFileMap,
 	}
-	return dataViewBo.(bo.RawDataViewBoInterface).UploadRawDataV2(uploadRawDataParams)
+	return dataViewBo.(bo.RawDataViewBoInterface).UploadRawData(uploadRawDataParams)
 }
 
 func (mgr *dataViewMgrImpl) UploadModelDataToDataView(dataViewId uuid.UUID, pairs map[string]string, dataFileMap map[string]io.ReadSeeker) error {
