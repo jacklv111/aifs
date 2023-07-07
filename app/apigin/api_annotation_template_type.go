@@ -14,6 +14,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	annotationtemplatetype "github.com/jacklv111/aifs/pkg/annotation-template-type"
 	"github.com/jacklv111/common-sdk/errors"
 	"github.com/jacklv111/common-sdk/log"
 	"github.com/jacklv111/common-sdk/utils"
@@ -33,7 +34,7 @@ func GetAnnoTemplateTypeList(c *gin.Context) {
 		c.Error(errors.NewAppErr(INVALID_PARAMS, err, err.Error()))
 		return
 	}
-	resultList := manager.AnnotationTemplateTypeMgr.GetList(offset, limit)
+	resultList := annotationtemplatetype.GetAnnotationTemplateList(offset, limit)
 
 	c.JSON(http.StatusOK, resultList)
 }
