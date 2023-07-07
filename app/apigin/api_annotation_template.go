@@ -15,6 +15,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	manager "github.com/jacklv111/aifs/app/apigin/manager/annotation-template"
 	"github.com/jacklv111/aifs/app/apigin/view-object/openapi"
 	annotationtemplate "github.com/jacklv111/aifs/pkg/annotation-template"
 	"github.com/jacklv111/common-sdk/errors"
@@ -29,7 +30,7 @@ func CopyAnnotationTemplate(c *gin.Context) {
 	if err != nil {
 		if err == annotationtemplate.ErrAnnotationTemplateNotFound {
 			log.Errorf("annotation template %s not found", annoTempId)
-			c.Error(errors.NewAppErr(NOT_FOUND, err, annoTempId))
+			c.Error(errors.NewAppErr(NOT_FOUND, err, annoTempId.String()))
 			return
 		}
 		log.Errorf("Error occurred when copying annotation template %s", err)
@@ -64,7 +65,7 @@ func DeleteAnnotationTemplate(c *gin.Context) {
 	if err != nil {
 		if err == annotationtemplate.ErrAnnotationTemplateNotFound {
 			log.Errorf("annotation template %s not found", annoTempId)
-			c.Error(errors.NewAppErr(NOT_FOUND, err, annoTempId))
+			c.Error(errors.NewAppErr(NOT_FOUND, err, annoTempId.String()))
 			return
 		}
 		log.Errorf("Error occurred when manager getting details by id, error", err)
