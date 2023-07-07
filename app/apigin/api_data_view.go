@@ -15,6 +15,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	manager "github.com/jacklv111/aifs/app/apigin/manager/data-view"
 	"github.com/jacklv111/aifs/app/apigin/view-object/openapi"
 	dataview "github.com/jacklv111/aifs/pkg/data-view"
 	dv "github.com/jacklv111/aifs/pkg/data-view"
@@ -60,7 +61,7 @@ func DeleteDataItemInDataView(c *gin.Context) {
 	err := manager.DataViewMgr.DeleteDataViewItem(dataViewId, dataViewItemIdList)
 	if err != nil {
 		if err == dv.ErrDataViewNotFound {
-			c.Error(errors.NewAppErr(NOT_FOUND, err, dataViewId))
+			c.Error(errors.NewAppErr(NOT_FOUND, err, dataViewId.String()))
 			return
 		}
 		log.Errorf("Error occurred when parsing limit type %s", err)
@@ -77,7 +78,7 @@ func DeleteDataView(c *gin.Context) {
 	err := manager.DataViewMgr.Delete(dataViewId)
 	if err != nil {
 		if err == dv.ErrDataViewNotFound {
-			c.Error(errors.NewAppErr(NOT_FOUND, err, dataViewId))
+			c.Error(errors.NewAppErr(NOT_FOUND, err, dataViewId.String()))
 			return
 		}
 		log.Errorf("Error occurred when manager deleting by id, error %v", err)
@@ -140,7 +141,7 @@ func GetAllAnnotationDataInDataView(c *gin.Context) {
 
 	if err != nil {
 		if err == dataview.ErrDataViewNotFound {
-			c.Error(errors.NewAppErr(NOT_FOUND, err, dataViewId))
+			c.Error(errors.NewAppErr(NOT_FOUND, err, dataViewId.String()))
 			return
 		}
 		log.Errorf("Error occurred when getting all annotations %s", err)
