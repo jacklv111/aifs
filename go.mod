@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/gin-gonic/gin v1.9.1
+	github.com/google/flatbuffers v23.5.26+incompatible
 	github.com/google/uuid v1.3.0
 	github.com/jacklv111/common-sdk v0.0.8
 	github.com/smartystreets/goconvey v1.8.1
@@ -25,6 +26,7 @@ require (
 	github.com/go-playground/validator/v10 v10.14.1 // indirect
 	github.com/go-sql-driver/mysql v1.7.1 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
+	github.com/golang/mock v1.6.0 // indirect
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
