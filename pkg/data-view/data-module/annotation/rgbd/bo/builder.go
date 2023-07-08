@@ -14,13 +14,13 @@ import (
 
 	"github.com/google/uuid"
 	annotationtemplatetype "github.com/jacklv111/aifs/pkg/annotation-template-type"
-	annoTempbo "github.com/jacklv111/aifs/pkg/annotation-template/bo"
+	annotempbo "github.com/jacklv111/aifs/pkg/annotation-template/bo"
 	"github.com/jacklv111/aifs/pkg/data-view/data-module/annotation/do"
 	basicbo "github.com/jacklv111/aifs/pkg/data-view/data-module/basic/bo"
 	basicdo "github.com/jacklv111/aifs/pkg/data-view/data-module/basic/do"
 )
 
-func BuildWithReader(rawDataId uuid.UUID, reader io.ReadSeeker, fileName string, annoTemp annoTempbo.AnnotationTemplateBoInterface) basicbo.AnnotationData {
+func BuildWithReader(rawDataId uuid.UUID, reader io.ReadSeeker, fileName string, annoTemp annotempbo.AnnotationTemplateBoInterface) basicbo.AnnotationData {
 	annoId := uuid.New()
 	return &RgbdAnnotationBo{
 		AnnotationDataImpl: basicbo.AnnotationDataImpl{

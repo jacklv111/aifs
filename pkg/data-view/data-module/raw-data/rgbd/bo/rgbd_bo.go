@@ -138,7 +138,7 @@ func (bo *RgbdRawDataBo) LoadFromLocal() error {
 //
 //	@param imageList
 //	@return error
-func FixDataItemId(dataList []basicBo.DataInterface) error {
+func FixDataItemId(dataList []basicbo.DataInterface) error {
 	var rgbdExtDoList []rgbddo.RgbdExtDo
 	for _, data := range dataList {
 		rgbdRawDataBo := data.(*RgbdRawDataBo)
@@ -165,7 +165,7 @@ func FixDataItemId(dataList []basicBo.DataInterface) error {
 //	@param imageList
 //	@return []uuid.UUID
 //	@return error
-func CreateBatch(imageList []basicBo.DataInterface) ([]uuid.UUID, error) {
+func CreateBatch(imageList []basicbo.DataInterface) ([]uuid.UUID, error) {
 	var idList []uuid.UUID
 	var dataItemDoList []basicdo.DataItemDo
 	var rgbdExtDoList []rgbddo.RgbdExtDo

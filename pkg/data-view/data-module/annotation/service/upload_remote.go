@@ -15,7 +15,8 @@ import (
 
 	"github.com/google/uuid"
 	annotationtemplatetype "github.com/jacklv111/aifs/pkg/annotation-template-type"
-	annoTempbo "github.com/jacklv111/aifs/pkg/annotation-template/bo"
+	annotempbo "github.com/jacklv111/aifs/pkg/annotation-template/bo"
+	datamodule "github.com/jacklv111/aifs/pkg/data-view/data-module"
 	catebo "github.com/jacklv111/aifs/pkg/data-view/data-module/annotation/category/bo"
 	cocobo "github.com/jacklv111/aifs/pkg/data-view/data-module/annotation/coco-type/bo"
 	ocrbo "github.com/jacklv111/aifs/pkg/data-view/data-module/annotation/ocr/bo"
@@ -23,7 +24,6 @@ import (
 	rgbdbo "github.com/jacklv111/aifs/pkg/data-view/data-module/annotation/rgbd/bo"
 	segmasksbo "github.com/jacklv111/aifs/pkg/data-view/data-module/annotation/segmentation-masks/bo"
 	basicbo "github.com/jacklv111/aifs/pkg/data-view/data-module/basic/bo"
-	"github.com/jacklv111/aifs/pkg/data-view/data-module/basic/service"
 	basicvb "github.com/jacklv111/aifs/pkg/data-view/data-module/basic/value-object"
 	"github.com/jacklv111/aifs/pkg/store/manager"
 	storevb "github.com/jacklv111/aifs/pkg/store/value-object"
@@ -35,7 +35,7 @@ import (
 //	@param annoTempBo
 //	@return []uuid.UUID
 //	@return error
-func LoadFromRemote(input basicvb.UploadAnnotationParam, annoTempBo annoTempbo.AnnotationTemplateBoInterface) ([]uuid.UUID, error) {
+func LoadFromRemote(input basicvb.UploadAnnotationParam, annoTempBo annotempbo.AnnotationTemplateBoInterface) ([]uuid.UUID, error) {
 	annoList, err := genBoList(input, annoTempBo)
 	if err != nil {
 		return nil, err
@@ -68,7 +68,7 @@ func LoadFromRemote(input basicvb.UploadAnnotationParam, annoTempBo annoTempbo.A
 
 func getStoreParamRemote(annoTempType string, dataList []basicbo.AnnotationData) (storevb.UploadParams, error) {
 	var params storevb.UploadParams
-	params.DataType = service.ANNOTATION
+	params.DataType = datamodule.ANNOTATION
 	for _, data := range dataList {
 
 		switch annoTempType {
@@ -84,7 +84,7 @@ func getStoreParamRemote(annoTempType string, dataList []basicbo.AnnotationData)
 	return params, nil
 }
 
-func genBoList(input basicvb.UploadAnnotationParam, annoTempBo annoTempbo.AnnotationTemplateBoInterface) ([]basicbo.AnnotationData, error) {
+func genBoList(input basicvb.UploadAnnotationParam, annoTempBo annotempbo.AnnotationTemplateBoInterface) ([]basicbo.AnnotationData, error) {
 	annoList := make([]basicbo.AnnotationData, 0)
 	switch annoTempBo.GetType() {
 	case annotationtemplatetype.SEGMENTATION_MASKS:
