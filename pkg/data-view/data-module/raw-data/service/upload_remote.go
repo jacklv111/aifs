@@ -14,8 +14,8 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	datamodule "github.com/jacklv111/aifs/pkg/data-view/data-module"
 	basicbo "github.com/jacklv111/aifs/pkg/data-view/data-module/basic/bo"
-	"github.com/jacklv111/aifs/pkg/data-view/data-module/basic/service"
 	basicvb "github.com/jacklv111/aifs/pkg/data-view/data-module/basic/value-object"
 	"github.com/jacklv111/aifs/pkg/data-view/data-module/raw-data/constant"
 	imagebo "github.com/jacklv111/aifs/pkg/data-view/data-module/raw-data/image/bo"
@@ -60,7 +60,7 @@ func genBoList(input basicvb.UploadRawDataParam, rawDataType string) ([]basicbo.
 			if err != nil {
 				return nil, err
 			}
-			rawDataList = append(rawDataList, imagebo)
+			rawDataList = append(rawDataList, imageBo)
 		}
 
 	case constant.RGBD:
@@ -107,7 +107,7 @@ func genBoList(input basicvb.UploadRawDataParam, rawDataType string) ([]basicbo.
 
 func getStoreParamRemote(rawDataType string, rawDataList []basicbo.DataInterface) storevb.UploadParams {
 	var params storevb.UploadParams
-	params.DataType = service.RAW_DATA
+	params.DataType = datamodule.RAW_DATA
 	for _, data := range rawDataList {
 		params.AddItem(data.GetId(), data.GetReader(), rawDataType)
 	}

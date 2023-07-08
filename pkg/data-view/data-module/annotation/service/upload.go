@@ -24,7 +24,7 @@ import (
 	basicvb "github.com/jacklv111/aifs/pkg/data-view/data-module/basic/value-object"
 )
 
-func UploadAnnotation(input basicvb.UploadAnnotationParam, annotationTemplateId uuid.UUID) ([]uuid.UUID, error) {
+func UploadAnnotations(input basicvb.UploadAnnotationParam, annotationTemplateId uuid.UUID) ([]uuid.UUID, error) {
 	annoTempBo := annotempbo.BuildWithId(annotationTemplateId)
 	if err := annoTempBo.Sync(); err != nil {
 		return nil, err
