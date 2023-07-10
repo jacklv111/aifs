@@ -71,7 +71,7 @@ func run() error {
 
 	go startRestServer()
 
-	go startRestServer()
+	startSchedulers()
 
 	waitGroup.Add(1)
 	waitGroup.Wait()
