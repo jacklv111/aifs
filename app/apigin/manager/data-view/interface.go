@@ -26,7 +26,6 @@ type dataViewMgrInterface interface {
 	DeleteDataViewItem(dataViewId uuid.UUID, dataViewItemIdList []uuid.UUID) error
 	UploadRawDataToDataView(dataViewId uuid.UUID, fileMeta io.Reader, dataFileMap map[string]io.ReadSeeker) error
 	UploadAnnotationToDataView(dataViewId uuid.UUID, fileMeta io.Reader, dataFileMap map[string]io.ReadSeeker, dataFileNameMap map[string]string) error
-	DownloadAll(dataViewIdList []uuid.UUID) (resp openapi.DownloadResponse, err error)
 	HardDelete(id uuid.UUID) error
 	GetAllAnnotationLocations(dataViewId uuid.UUID) (resp openapi.AnnotationViewLocations, err error)
 	GetAllRawDataLocations(dataViewId uuid.UUID) (resp openapi.RawDataViewLocations, err error)

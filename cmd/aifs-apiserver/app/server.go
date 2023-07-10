@@ -14,6 +14,7 @@ import (
 
 	"github.com/jacklv111/aifs/app/apigin"
 	"github.com/jacklv111/aifs/cmd/aifs-apiserver/app/config"
+	dataitemscheduler "github.com/jacklv111/aifs/pkg/data-view/scheduler"
 	"github.com/jacklv111/common-sdk/cli"
 	"github.com/jacklv111/common-sdk/database"
 	utilerrors "github.com/jacklv111/common-sdk/errors"
@@ -68,7 +69,7 @@ func run() error {
 		return err
 	}
 
-	// add scheduler
+	go startRestServer()
 
 	go startRestServer()
 
@@ -84,4 +85,8 @@ func startRestServer() {
 	if err != nil {
 		log.Errorf("start rest server error %s", err)
 	}
+}
+
+func startSchedulers() {
+	dataitemscheduler.Start()
 }

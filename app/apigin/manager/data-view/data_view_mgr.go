@@ -11,7 +11,6 @@ package manager
 import (
 	"fmt"
 	"io"
-	"path/filepath"
 
 	"github.com/google/uuid"
 	manager "github.com/jacklv111/aifs/app/apigin/manager/annotation-template"
@@ -180,7 +179,7 @@ func (mgr *dataViewMgrImpl) UploadAnnotationToDataView(dataViewId uuid.UUID, fil
 			return nil
 		},
 	}
-	return dataViewBo.(bo.AnnotationViewBoInterface).UploadAnnotation(uploadAnnotationParams)
+	return dataViewBo.(bo.AnnotationViewBoInterface).UploadAnnotations(uploadAnnotationParams)
 }
 
 func (mgr *dataViewMgrImpl) UploadRawDataToDataView(dataViewId uuid.UUID, fileMeta io.Reader, dataFileMap map[string]io.ReadSeeker) error {
@@ -217,33 +216,6 @@ func (mgr *dataViewMgrImpl) UploadDatasetZipToDataView(dataViewId uuid.UUID, fil
 		FileName: fileName,
 	}
 	return dataViewBo.(bo.DatasetZipViewBoInterface).UploadDatasetZip(uploadDatasetZipParams)
-}
-
-func (mgr *dataViewMgrImpl) DownloadAll(dataViewIdList []uuid.UUID) (resp openapi.DownloadResponse, err error) {
-	// validate
-	invalidIds, err := repo.DataViewRepo.GetInvalidId(dataViewIdList)
-	if err != nil {
-		return
-	}
-	if len(invalidIds) > 0 {
-		err = fmt.Errorf("invalid data view ids: [%s]", invalidIds)
-		return
-	}
-
-	rootDir := filepath.Join("/Users/lvyubin/work/test/download", uuid.New().String())
-
-	for _, id := range dataViewIdList {
-		var dataViewBo bo.DataViewBoInterface
-		dataViewBo, err = bo.BuildWithId(id)
-		if err != nil {
-			return resp, err
-		}
-		err = dataViewBo.DownloadAll(dvvb.DownloadQuery{Directory: rootDir})
-		if err != nil {
-			return
-		}
-	}
-	return openapi.DownloadResponse{Directory: rootDir}, nil
 }
 
 func (mgr *dataViewMgrImpl) GetAllAnnotationLocations(dataViewId uuid.UUID) (resp openapi.AnnotationViewLocations, err error) {
