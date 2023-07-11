@@ -1,8 +1,11 @@
 /*
- * Created on Thu Feb 02 2023
+ * Created on Tue Jul 11 2023
  *
- * Copyright (c) 2023 Gddi
+ * Copyright (c) 2023 Company-placeholder. All rights reserved.
+ *
+ * Author Yubinlv.
  */
+
 package scheduler
 
 import (

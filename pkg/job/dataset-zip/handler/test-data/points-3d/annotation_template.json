@@ -1,0 +1,44 @@
+{
+    "name": "indoor",
+    "labels": [
+        {
+            "name": "ceiling"
+        },
+        {
+            "name": "floor"
+        },
+        {
+            "name": "wall"
+        },
+        {
+            "name": "beam"
+        },
+        {
+            "name": "column"
+        },
+        {
+            "name": "window"
+        },
+        {
+            "name": "door"
+        },
+        {
+            "name": "table"
+        },
+        {
+            "name": "chair"
+        },
+        {
+            "name": "sofa"
+        },
+        {
+            "name": "bookcase"
+        },
+        {
+            "name": "board"
+        },
+        {
+            "name": "clutter"
+        }
+    ]
+}
