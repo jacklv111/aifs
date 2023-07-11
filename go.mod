@@ -7,7 +7,8 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/google/flatbuffers v23.5.26+incompatible
 	github.com/google/uuid v1.3.0
-	github.com/jacklv111/common-sdk v0.0.9
+	github.com/jacklv111/aifs-client-go v0.0.3
+	github.com/jacklv111/common-sdk v0.0.10
 	github.com/smartystreets/goconvey v1.8.1
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/pflag v1.0.5
@@ -19,6 +20,7 @@ require (
 	github.com/aws/aws-sdk-go v1.44.295 // indirect
 	github.com/bytedance/sonic v1.9.2 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
+	github.com/deckarep/golang-set/v2 v2.3.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
@@ -29,6 +31,7 @@ require (
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+	github.com/jarcoal/httpmock v1.3.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
