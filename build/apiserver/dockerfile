@@ -1,0 +1,21 @@
+#
+# Created on Wed Jul 12 2023
+#
+# Copyright (c) 2023 Company-placeholder. All rights reserved.
+#
+# Author Yubinlv.
+#
+
+FROM golang:1.19
+
+WORKDIR /apiserver/build
+
+COPY . .
+
+RUN go build -o server cmd/aifs-apiserver/apiserver.go
+
+RUN mv /apiserver/build/server /apiserver/server
+
+RUN rm -rf /apiserver/build
+
+ENTRYPOINT [""]
