@@ -12,6 +12,8 @@ WORKDIR /apiserver/build
 
 COPY . .
 
+RUN go env -w GOPROXY=https://goproxy.cn,direct
+
 RUN go build -o server cmd/aifs-apiserver/apiserver.go
 
 RUN mv /apiserver/build/server /apiserver/server
