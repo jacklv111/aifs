@@ -7,12 +7,38 @@
 #
 
 
-FROM golang:1.20
-ARG PY_ENV="python39"
-ARG ANACONDA_VERSION="2023.03"
-ARG TRUSTED_HOST="139.9.197.68:31686"
-ARG PY_SRC_INTERNAL="http://139.9.197.68:31686/admin/devpi/+simple/"
-ARG PY_SRC_EXTERNAL="https://pypi.tuna.tsinghua.edu.cn/simple"
+FROM ubuntu:20.04 
+
+# Set environment variables for Go and Python versions
+ENV GO_VERSION=1.20
+ENV TRUSTED_HOST="139.9.197.68:31686"
+ENV PY_SRC_INTERNAL="http://139.9.197.68:31686/admin/devpi/+simple/"
+ENV PY_SRC_EXTERNAL="https://pypi.tuna.tsinghua.edu.cn/simple"
+
+# Install dependencies and required packages
+RUN apt-get update && apt-get install -y \
+    wget \
+    libgl1-mesa-glx \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Go
+RUN wget -q https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz -O /tmp/go.tar.gz \
+    && tar -C /usr/local -xzf /tmp/go.tar.gz \
+    && rm /tmp/go.tar.gz
+
+# Set Go environment variables
+ENV PATH="/usr/local/go/bin:${PATH}"
+
+# Install Python 3.9 and Pip3
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.9 \
+    python3-pip \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set default Python version to 3.9
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 1
 
 WORKDIR /job/build
 
@@ -22,25 +48,6 @@ RUN go build -o dataset-zip-decompression cmd/job/dataset-zip/main.go
 
 RUN mv /job/build/dataset-zip-decompression /job/dataset-zip-decompression
 
-ENV PATH="/opt/conda/bin:${PATH}"
-
-RUN apt-get update && apt-get install -y libgl1-mesa-glx
-
-RUN if [ ! -f Anaconda3-${ANACONDA_VERSION}-Linux-x86_64.sh ]; then \
-    wget https://repo.anaconda.com/archive/Anaconda3-${ANACONDA_VERSION}-Linux-x86_64.sh; \
-fi
-
-RUN bash Anaconda3-${ANACONDA_VERSION}-Linux-x86_64.sh -b -p /opt/conda
-
-RUN conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/ && \
-    conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/ && \
-    conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge/ && \   
-    conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/
-
-RUN conda create --name ${PY_ENV} python=3.9
-
-SHELL ["conda", "run", "-n", "python39", "/bin/bash", "-c"]
-
 RUN pip3 config set global.index-url ${PY_SRC_INTERNAL} && \
     pip3 config set global.extra-index-url ${PY_SRC_EXTERNAL} && \
     pip3 config set global.trusted-host ${TRUSTED_HOST}
@@ -48,10 +55,6 @@ RUN pip3 config set global.index-url ${PY_SRC_INTERNAL} && \
 RUN pip3 install aifs-client-py==v0.0.1 --index-url=${PY_SRC_INTERNAL} --trusted-host ${TRUSTED_HOST}
 
 RUN pip3 install data-client-py==v0.0.2 --index-url=${PY_SRC_INTERNAL} --trusted-host ${TRUSTED_HOST}
-
-RUN conda init bash && \
-    echo "conda activate ${PY_ENV}" >> /root/.bashrc && \
-    source /root/.bashrc
 
 RUN rm -rf /job/build
 

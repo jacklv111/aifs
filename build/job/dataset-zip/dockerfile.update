@@ -8,12 +8,8 @@
 
 FROM dataset-zip-decompression:v0.0.0
 
-ARG TRUSTED_HOST="139.9.197.68:31686"
-ARG PY_SRC_INTERNAL="http://139.9.197.68:31686/admin/devpi/+simple/"
-
-RUN apt-get update && apt-get install -y libgl1-mesa-glx
-
-ENV PATH="/opt/conda/envs/python39/bin:${PATH}"
+ENV TRUSTED_HOST="139.9.197.68:31686"
+ENV PY_SRC_INTERNAL="http://139.9.197.68:31686/admin/devpi/+simple/"
 
 WORKDIR /job/build
 COPY . .
@@ -21,9 +17,6 @@ COPY . .
 RUN go build -o dataset-zip-decompression cmd/job/dataset-zip/main.go
 
 RUN mv /job/build/dataset-zip-decompression /job/dataset-zip-decompression
-
-SHELL ["conda", "run", "-n", "python39", "/bin/bash", "-c"]
-
 
 RUN pip3 install aifs-client-py==v0.0.1 --index-url=${PY_SRC_INTERNAL} --trusted-host ${TRUSTED_HOST}
 
