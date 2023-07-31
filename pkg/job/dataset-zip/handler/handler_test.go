@@ -144,7 +144,7 @@ func TestCocoFormatHandler(t *testing.T) {
 					So(err, ShouldBeNil)
 					err = json.Unmarshal(content, &body)
 					So(err, ShouldBeNil)
-					So(body.RawDataType, ShouldEqual, rawdataconst.IMAGE)
+					So(string(body.RawDataType), ShouldEqual, rawdataconst.IMAGE)
 
 					return httpmock.NewJsonResponse(201, map[string]any{
 						"dataViewId": trainRawDataViewId,
@@ -173,7 +173,7 @@ func TestCocoFormatHandler(t *testing.T) {
 					So(err, ShouldBeNil)
 					err = json.Unmarshal(content, &body)
 					So(err, ShouldBeNil)
-					So(body.RawDataType, ShouldEqual, rawdataconst.IMAGE)
+					So(string(body.RawDataType), ShouldEqual, rawdataconst.IMAGE)
 
 					return httpmock.NewJsonResponse(201, map[string]any{
 						"dataViewId": valRawDataViewId,
@@ -413,7 +413,7 @@ func TestSegmentationMasksFormatHandler(t *testing.T) {
 					So(err, ShouldBeNil)
 					err = json.Unmarshal(content, &body)
 					So(err, ShouldBeNil)
-					So(body.RawDataType, ShouldEqual, rawdataconst.IMAGE)
+					So(string(body.RawDataType), ShouldEqual, rawdataconst.IMAGE)
 
 					return httpmock.NewJsonResponse(201, map[string]any{
 						"dataViewId": trainRawDataViewId,
@@ -442,7 +442,7 @@ func TestSegmentationMasksFormatHandler(t *testing.T) {
 					So(err, ShouldBeNil)
 					err = json.Unmarshal(content, &body)
 					So(err, ShouldBeNil)
-					So(body.RawDataType, ShouldEqual, rawdataconst.IMAGE)
+					So(string(body.RawDataType), ShouldEqual, rawdataconst.IMAGE)
 
 					return httpmock.NewJsonResponse(201, map[string]any{
 						"dataViewId": valRawDataViewId,
@@ -671,7 +671,7 @@ func TestRgbdFormatHandler(t *testing.T) {
 					So(err, ShouldBeNil)
 					err = json.Unmarshal(content, &body)
 					So(err, ShouldBeNil)
-					So(body.RawDataType, ShouldEqual, rawdataconst.RGBD)
+					So(string(body.RawDataType), ShouldEqual, rawdataconst.RGBD)
 
 					return httpmock.NewJsonResponse(201, map[string]any{
 						"dataViewId": trainRawDataViewId,
@@ -700,7 +700,7 @@ func TestRgbdFormatHandler(t *testing.T) {
 					So(err, ShouldBeNil)
 					err = json.Unmarshal(content, &body)
 					So(err, ShouldBeNil)
-					So(body.RawDataType, ShouldEqual, rawdataconst.RGBD)
+					So(string(body.RawDataType), ShouldEqual, rawdataconst.RGBD)
 
 					return httpmock.NewJsonResponse(201, map[string]any{
 						"dataViewId": valRawDataViewId,

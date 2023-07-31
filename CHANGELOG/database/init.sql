@@ -7,7 +7,7 @@ create table annotation_templates (
     delete_at bigint default 0,
     update_at bigint not null,
     description varchar(128),
-    PRIMARY KEY (id),
+    PRIMARY KEY (id)
 );
 
 create table annotation_template_exts (
@@ -57,7 +57,7 @@ create table data_views (
     delete_at bigint default 0,
     -- soft delete
     update_at bigint not null,
-    PRIMARY KEY (id),
+    PRIMARY KEY (id)
 );
 
 create table data_view_items (
@@ -156,7 +156,7 @@ create table locations (
 create table raw_data_labels(
     raw_data_id varchar(64) not null,
     annotation_id varchar(64) not null,
-    label_id varchar(64) not null,
+    label_id varchar(64) not null
 );
 create index raw_data_labels_anno_id_idx on raw_data_labels (annotation_id)
 create index raw_data_labels_label_id_idx on raw_data_labels (label_id)
