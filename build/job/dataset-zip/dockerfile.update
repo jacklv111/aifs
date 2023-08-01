@@ -6,7 +6,7 @@
 # Author Yubinlv.
 #
 
-FROM dataset-zip-decompression:v0.0.0
+FROM dataset-zip-decompression:v0.0.1
 
 ENV TRUSTED_HOST="139.9.197.68:31686"
 ENV PY_SRC_INTERNAL="http://139.9.197.68:31686/admin/devpi/+simple/"
