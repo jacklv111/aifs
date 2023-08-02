@@ -24,4 +24,6 @@ RUN pip3 install data-client-py==v0.0.2 --index-url=${PY_SRC_INTERNAL} --trusted
 
 RUN rm -rf /job/build
 
+RUN mkdir /job/temp
+
 ENTRYPOINT [""]
