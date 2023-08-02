@@ -6,7 +6,7 @@
 # Author Yubinlv.
 #
 
-FROM dataset-zip-decompression:v0.0.1
+FROM dataset-zip-decompression:v0.0.2
 
 ENV TRUSTED_HOST="139.9.197.68:31686"
 ENV PY_SRC_INTERNAL="http://139.9.197.68:31686/admin/devpi/+simple/"
@@ -18,7 +18,7 @@ RUN go build -o dataset-zip-decompression cmd/job/dataset-zip/main.go
 
 RUN mv /job/build/dataset-zip-decompression /job/dataset-zip-decompression
 
-RUN pip3 install aifs-client-py==v0.0.2 --index-url=${PY_SRC_INTERNAL} --trusted-host ${TRUSTED_HOST}
+RUN pip3 install aifs-client-py==v0.0.4 --index-url=${PY_SRC_INTERNAL} --trusted-host ${TRUSTED_HOST}
 
 RUN pip3 install data-client-py==v0.0.2 --index-url=${PY_SRC_INTERNAL} --trusted-host ${TRUSTED_HOST}
 
